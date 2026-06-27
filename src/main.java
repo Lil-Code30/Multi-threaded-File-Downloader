@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.net.URI;
 import java.nio.file.Path;
@@ -24,11 +25,34 @@ public class main {
         System.out.print("How many files do you want to download? ");
         int n = input.nextInt();
 
+        input.nextLine(); // consume leftover newline
+
         // prompting the user to enter the url link of the file to be downloaded
-        // TODO: add a verification for the url entered by the user
         for(int i = 0; i < n; i++){
-            System.out.println("Please enter the URL of the file you want to download: ");
-            fileUrls.add(input.next());
+            String url;
+
+            while(true){
+                System.out.println("Please enter the URL of the file you want to download: ");
+                url = input.nextLine().trim();
+
+                try{
+                    // validate URL format
+                    new URL(url);
+
+                    // validate PDF extension
+                    if(!url.toLowerCase().endsWith(".pdf")){
+                        System.out.println("The Link must end with .pdf");
+                        continue;
+                    }
+
+                    // if everything is OK, break the loop
+                    break;
+                }catch(Exception e){
+                    System.out.println("Try again (must be a valid .pdf URL)");
+                }
+            }
+
+            fileUrls.add(url);
         }
 
         // test Link :
