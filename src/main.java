@@ -74,14 +74,21 @@ public class main {
         for(String fileUrl : fileUrls){
             executor.execute(() -> {
                 // using try-with-resources to automatically close the InputStream
-                try(InputStream in = URI.create(fileUrl).toURL().openStream()){
+                try{
+                    long startTime = System.nanoTime();
+
+                    InputStream in = URI.create(fileUrl).toURL().openStream();
                     String filename = System.currentTimeMillis() + ".pdf";
 
                     // size in bytes
                     long size = Files.copy(in, Paths.get("./downloads/"+filename));
 
+                    long endTime = System.nanoTime();
+
+                    double  timeInSeconds = (endTime - startTime) / 1_000_000_000.0;
+
                     sizeDic.put(filename, size / (1024.0 * 1024.0));
-                    System.out.printf("%s downloaded %s (%d bytes)%n", Thread.currentThread().getName(), filename, size);
+                    System.out.printf("%s downloaded %s (%d bytes) in %.3f seconds %n", Thread.currentThread().getName(), filename, size,  timeInSeconds);
                 }catch (IOException ex) {
                     ex.printStackTrace();
                 }
