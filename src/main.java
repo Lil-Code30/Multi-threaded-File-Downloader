@@ -49,20 +49,15 @@ public class main {
         // downloading all files from the URLs provided (FileUrls)
         for(String fileUrl : fileUrls){
             executor.execute(() -> {
-                try{
-                    InputStream in = URI.create(fileUrl).toURL().openStream();
-
-                    // Note: It can happen that two threads create the new Date() at the same time
+                // using try-with-resources to automatically close the InputStream
+                try(InputStream in = URI.create(fileUrl).toURL().openStream()){
                     String filename = System.currentTimeMillis() + ".pdf";
 
                     // size in bytes
-                    Long size = Files.copy(in, Paths.get("./downloads/"+filename));
+                    long size = Files.copy(in, Paths.get("./downloads/"+filename));
 
-                    // in MB
-                    double sizeMB = size / (1024.0 * 1024.0);
-
-                    sizeDic.put(filename, sizeMB);
-                    System.out.println(Thread.currentThread().getName() + " is downloading " + filename);
+                    sizeDic.put(filename, size / (1024.0 * 1024.0));
+                    System.out.printf("%s downloaded %s (%d bytes)%n", Thread.currentThread().getName(), filename, size);
                 }catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -80,9 +75,9 @@ public class main {
 
         // getting the total size of every file downloaded
         System.out.println("=================================");
-        System.out.println("FileName  => Size");
+        System.out.println("FileName  => Size (approximate)");
         for(Map.Entry<String, Double> entry: sizeDic.entrySet()){
-            System.out.println(entry.getKey() + " => " + entry.getValue() + "MB");
+            System.out.printf("%s => %.2f MB%n", entry.getKey(), entry.getValue());
         }
         System.out.println("=================================");
 
