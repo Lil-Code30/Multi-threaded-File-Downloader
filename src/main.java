@@ -17,7 +17,7 @@ public class main {
 
         ArrayList<String> fileUrls = new ArrayList<>();
         Scanner input = new Scanner(System.in);
-        ConcurrentHashMap<String, Long> sizeDic = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Double> sizeDic = new ConcurrentHashMap<>();
 
         ExecutorService executor = Executors.newFixedThreadPool(4);
 
@@ -53,14 +53,15 @@ public class main {
                     InputStream in = URI.create(fileUrl).toURL().openStream();
 
                     // Note: It can happen that two threads create the new Date() at the same time
-                    // causing the FileExistException when trying to copy the file with the .getTime() from the date
-                    String filename = new Date().getTime() + ".pdf";
+                    String filename = System.currentTimeMillis() + ".pdf";
 
                     // size in bytes
                     Long size = Files.copy(in, Paths.get("./downloads/"+filename));
 
+                    // in MB
+                    double sizeMB = size / (1024.0 * 1024.0);
 
-                    sizeDic.put(filename, size);
+                    sizeDic.put(filename, sizeMB);
                     System.out.println(Thread.currentThread().getName() + " is downloading " + filename);
                 }catch (IOException ex) {
                     ex.printStackTrace();
@@ -79,9 +80,9 @@ public class main {
 
         // getting the total size of every file downloaded
         System.out.println("=================================");
-        System.out.println("FileName  => FileSize");
-        for(Map.Entry<String, Long> entry: sizeDic.entrySet()){
-            System.out.println(entry.getKey() + " => " + entry.getValue());
+        System.out.println("FileName  => Size");
+        for(Map.Entry<String, Double> entry: sizeDic.entrySet()){
+            System.out.println(entry.getKey() + " => " + entry.getValue() + "MB");
         }
         System.out.println("=================================");
 
